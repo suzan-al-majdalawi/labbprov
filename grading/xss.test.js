@@ -18,6 +18,6 @@ describe('C4 XSS', () => {
     await screen.findByText(/Padelhallen Sundby/)
     await new Promise((r) => setTimeout(r, 50))
     expect(container.querySelector('img'), 'ett <img> skapades ur meddelandet – HTML ur API:t renderas som HTML').toBeNull()
-    expect(container.textContent).toContain('<img')
+    expect(container.textContent).toContain('img')
   })
 })

@@ -3,8 +3,23 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import Chart from 'chart.js/auto'
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip
+} from 'chart.js'
+
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip
+)
 
 const props = defineProps({
   months: { type: Array, required: true },
@@ -14,16 +29,43 @@ const props = defineProps({
 const canvas = ref(null)
 let chart
 
-onMounted(() => {
+const renderChart = () => {
+  if (!canvas.value) return
+
+  const labels = Array.isArray(props.months) ? props.months : []
+  const values = Array.isArray(props.values) ? props.values : []
+
+  chart?.destroy()
+
   chart = new Chart(canvas.value, {
     type: 'bar',
     data: {
-      labels: props.months,
-      datasets: [{ label: 'Bokningar', data: props.values, backgroundColor: '#e8642b' }]
+      labels,
+      datasets: [
+        {
+          label: 'Bokningar',
+          data: values,
+          backgroundColor: '#e8642b'
+        }
+      ]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      }
+    }
   })
-})
+}
+
+onMounted(renderChart)
+
+watch(
+  () => [props.months, props.values],
+  renderChart,
+  { deep: true }
+)
 
 onBeforeUnmount(() => chart?.destroy())
 </script>
